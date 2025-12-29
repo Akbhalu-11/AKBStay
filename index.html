@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKBStay - Premium Hotel Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a1a',
+                        secondary: '#c5a365',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-primary">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center space-x-2">
+                        <i class="fas fa-hotel text-secondary text-2xl"></i>
+                        <span class="text-xl font-bold tracking-tight">AKBStay</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-600 hover:text-secondary transition">Home</a>
+                    <a href="#rooms" class="text-gray-600 hover:text-secondary transition">Rooms</a>
+                    <a href="#about" class="text-gray-600 hover:text-secondary transition">About</a>
+                    <a href="#services" class="text-gray-600 hover:text-secondary transition">Services</a>
+                    <a href="#contact" class="text-gray-600 hover:text-secondary transition">Contact</a>
+                    <div id="auth-buttons">
+                        <button onclick="openAuthModal()" class="bg-secondary text-white px-5 py-2 rounded-full hover:bg-yellow-600 transition">Login / Sign Up</button>
+                    </div>
+                    <div id="user-profile" class="hidden items-center space-x-3">
+                        <span class="text-gray-800 font-medium" id="username-display"></span>
+                        <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm">Logout</button>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-600 hover:text-secondary focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative min-h-[600px] flex items-center justify-center py-20">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80" alt="Luxury Hotel" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+        
+        <div class="relative z-10 text-center text-white px-4 w-full max-w-7xl mx-auto">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">Experience Luxury Like Never Before</h1>
+            <p class="text-xl md:text-2xl mb-8 font-light">Your perfect getaway awaits at LuxeStay</p>
+            
+            <!-- Booking Form -->
+            <div class="bg-white p-4 rounded-lg shadow-xl max-w-4xl mx-auto hidden md:block">
+                <form class="flex flex-wrap items-end gap-4">
+                    <div class="flex-1 min-w-[200px] relative">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="destination">Destination</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary text-gray-700" type="text" id="destination" placeholder="Enter City (e.g., Mumbai)" autocomplete="off">
+                        <ul id="suggestions-list" class="absolute w-full bg-white border border-gray-200 mt-1 rounded-lg shadow-lg hidden"></ul>
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="check-in">Check In</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary text-gray-700" type="date" id="check-in">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="check-out">Check Out</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary text-gray-700" type="date" id="check-out">
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="guests">Guests</label>
+                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary text-gray-700" id="guests">
+                            <option>1 Adult</option>
+                            <option>2 Adults</option>
+                            <option>2 Adults, 1 Child</option>
+                            <option>Family (4+)</option>
+                        </select>
+                    </div>
+                    <div class="flex-none">
+                        <button type="button" onclick="searchRooms()" class="bg-secondary text-white px-8 py-2 rounded-lg hover:bg-yellow-600 transition h-[42px] w-full md:w-auto font-semibold">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Search Form (Visible only on mobile) -->
+    <div class="md:hidden bg-white p-6 -mt-10 relative z-20 mx-4 rounded-lg shadow-lg">
+        <form class="space-y-4">
+            <div class="relative">
+                <label class="block text-gray-700 text-sm font-bold mb-1" for="m-destination">Destination</label>
+                <input class="w-full px-3 py-2 border rounded-lg" type="text" id="m-destination" placeholder="Enter City" autocomplete="off">
+                <ul id="m-suggestions-list" class="absolute w-full bg-white border border-gray-200 mt-1 rounded-lg shadow-lg hidden z-50"></ul>
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-1" for="m-check-in">Check In</label>
+                <input class="w-full px-3 py-2 border rounded-lg" type="date" id="m-check-in">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-1" for="m-check-out">Check Out</label>
+                <input class="w-full px-3 py-2 border rounded-lg" type="date" id="m-check-out">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-1" for="m-guests">Guests</label>
+                <select class="w-full px-3 py-2 border rounded-lg" id="m-guests">
+                    <option>1 Adult</option>
+                    <option>2 Adults</option>
+                    <option>Family</option>
+                </select>
+            </div>
+            <button type="button" onclick="searchRooms()" class="w-full bg-secondary text-white py-3 rounded-lg font-bold">Search Availability</button>
+        </form>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="relative h-[400px]">
+                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Hotel Interior" class="w-full h-full object-cover rounded-lg shadow-xl">
+                    <div class="absolute -bottom-6 -right-6 bg-secondary text-white p-6 rounded-lg shadow-lg hidden md:block">
+                        <p class="text-3xl font-bold">10+</p>
+                        <p class="text-sm">Years of Excellence</p>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Redefining Luxury Hospitality</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Welcome to LuxeStay, where Indian hospitality meets world-class luxury. Established in 2014, we have grown from a single boutique hotel to a premier chain across India's most vibrant cities.
+                    </p>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Our mission is to create unforgettable experiences for our guests by blending modern comfort with traditional warmth. Whether you are traveling for business or leisure, LuxeStay promises a sanctuary of elegance and peace.
+                    </p>
+                    <div class="flex space-x-8">
+                        <div>
+                            <p class="text-3xl font-bold text-secondary">50+</p>
+                            <p class="text-gray-500 text-sm">Locations</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-secondary">1M+</p>
+                            <p class="text-gray-500 text-sm">Happy Guests</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-bold text-secondary">4.8</p>
+                            <p class="text-gray-500 text-sm">User Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Rooms -->
+    <section id="rooms" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Our Featured Rooms</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Choose from our wide range of luxurious rooms and suites, designed to provide you with the ultimate comfort and relaxation.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="room-list">
+            <!-- Room Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 group">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Deluxe Room" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-secondary shadow">
+                        ₹12,000/night
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Deluxe Ocean View</h3>
+                        <div class="flex text-yellow-400 text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4 text-sm line-clamp-2">Wake up to the sound of waves in our spacious Deluxe Ocean View room featuring a private balcony.</p>
+                    <div class="flex items-center space-x-4 mb-6 text-gray-500 text-sm">
+                        <span class="flex items-center"><i class="fas fa-bed mr-2"></i> 1 King</span>
+                        <span class="flex items-center"><i class="fas fa-wifi mr-2"></i> Free Wifi</span>
+                        <span class="flex items-center"><i class="fas fa-user mr-2"></i> 2 Guests</span>
+                    </div>
+                    <button class="w-full border-2 border-secondary text-secondary hover:bg-secondary hover:text-white font-bold py-2 rounded-lg transition duration-300">View Details</button>
+                </div>
+            </div>
+
+            <!-- Room Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 group">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Executive Suite" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-secondary shadow">
+                        ₹25,000/night
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Executive Suite</h3>
+                        <div class="flex text-yellow-400 text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4 text-sm line-clamp-2">Experience premium luxury in our Executive Suite with a separate living area and premium amenities.</p>
+                    <div class="flex items-center space-x-4 mb-6 text-gray-500 text-sm">
+                        <span class="flex items-center"><i class="fas fa-bed mr-2"></i> 2 Queen</span>
+                        <span class="flex items-center"><i class="fas fa-bath mr-2"></i> Jacuzzi</span>
+                        <span class="flex items-center"><i class="fas fa-user mr-2"></i> 4 Guests</span>
+                    </div>
+                    <button class="w-full border-2 border-secondary text-secondary hover:bg-secondary hover:text-white font-bold py-2 rounded-lg transition duration-300">View Details</button>
+                </div>
+            </div>
+
+            <!-- Room Card 3 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 group">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Presidential Villa" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-bold text-secondary shadow">
+                        ₹60,000/night
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Presidential Villa</h3>
+                        <div class="flex text-yellow-400 text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4 text-sm line-clamp-2">The ultimate private retreat. Our Presidential Villa offers a private pool, chef service, and oceanfront views.</p>
+                    <div class="flex items-center space-x-4 mb-6 text-gray-500 text-sm">
+                        <span class="flex items-center"><i class="fas fa-home mr-2"></i> 2500 sqft</span>
+                        <span class="flex items-center"><i class="fas fa-swimming-pool mr-2"></i> Pool</span>
+                        <span class="flex items-center"><i class="fas fa-user mr-2"></i> 6 Guests</span>
+                    </div>
+                    <button class="w-full border-2 border-secondary text-secondary hover:bg-secondary hover:text-white font-bold py-2 rounded-lg transition duration-300">View Details</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="bg-gray-100 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Hotel Amenities</h2>
+                <p class="text-gray-600">We provide top-notch services to make your stay memorable.</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition">
+                    <i class="fas fa-utensils text-4xl text-secondary mb-4"></i>
+                    <h3 class="font-bold text-lg mb-2">Fine Dining</h3>
+                    <p class="text-gray-500 text-sm">Gourmet restaurants</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition">
+                    <i class="fas fa-spa text-4xl text-secondary mb-4"></i>
+                    <h3 class="font-bold text-lg mb-2">Wellness Spa</h3>
+                    <p class="text-gray-500 text-sm">Relax & Rejuvenate</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition">
+                    <i class="fas fa-dumbbell text-4xl text-secondary mb-4"></i>
+                    <h3 class="font-bold text-lg mb-2">Fitness Center</h3>
+                    <p class="text-gray-500 text-sm">Modern equipment</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition">
+                    <i class="fas fa-cocktail text-4xl text-secondary mb-4"></i>
+                    <h3 class="font-bold text-lg mb-2">Lounge Bar</h3>
+                    <p class="text-gray-500 text-sm">Signature cocktails</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8" id="contact">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fas fa-hotel text-secondary text-2xl"></i>
+                        <span class="text-2xl font-bold tracking-tight">LuxeStay</span>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">Experience the pinnacle of luxury and hospitality. Your comfort is our top priority.</p>
+                    <div class="text-gray-400 text-sm">
+                        <p class="font-semibold text-white mb-2">About Us</p>
+                        <p class="mb-2">LuxeStay has been defining luxury since 2014. With over 50 locations across India, we bring you world-class amenities and authentic Indian hospitality.</p>
+                        <p>Our hotels are designed to be your sanctuary, offering a perfect blend of modern elegance and traditional warmth.</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6 text-white">Quick Links</h4>
+                    <ul class="space-y-3 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-secondary transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Rooms & Suites</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Dining</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Spa & Wellness</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6 text-white">Contact</h4>
+                    <ul class="space-y-3 text-gray-400 text-sm">
+                        <li class="flex items-start"><i class="fas fa-map-marker-alt mt-1 mr-3 text-secondary"></i> 123 Luxury Blvd, Paradise City, PC 12345</li>
+                        <li class="flex items-center"><i class="fas fa-phone-alt mr-3 text-secondary"></i> +1 (555) 123-4567</li>
+                        <li class="flex items-center"><i class="fas fa-envelope mr-3 text-secondary"></i> info@luxestay.com</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6 text-white">Newsletter</h4>
+                    <p class="text-gray-400 text-sm mb-4">Subscribe for exclusive offers.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="px-4 py-2 bg-gray-800 text-white rounded-l-lg focus:outline-none focus:ring-1 focus:ring-secondary w-full">
+                        <button class="bg-secondary px-4 py-2 rounded-r-lg hover:bg-yellow-600 transition"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm">&copy; 2024 LuxeStay Hotel. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4 relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <!-- Login Form -->
+            <div id="login-form">
+                <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                        <input type="text" id="login-username" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="login-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary" required>
+                    </div>
+                    <button type="submit" class="w-full bg-secondary text-white py-2 rounded-lg font-bold hover:bg-yellow-600 transition">Login</button>
+                </form>
+                <p class="mt-4 text-center text-sm text-gray-600">
+                    Don't have an account? <button onclick="toggleAuth('register')" class="text-secondary font-bold hover:underline">Sign Up</button>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="hidden">
+                <h2 class="text-2xl font-bold mb-6 text-center">Create Account</h2>
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                        <input type="text" id="reg-username" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="reg-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="reg-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-secondary" required>
+                    </div>
+                    <button type="submit" class="w-full bg-secondary text-white py-2 rounded-lg font-bold hover:bg-yellow-600 transition">Register</button>
+                </form>
+                <p class="mt-4 text-center text-sm text-gray-600">
+                    Already have an account? <button onclick="toggleAuth('login')" class="text-secondary font-bold hover:underline">Login</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Receipt Modal -->
+    <div id="receipt-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-50 hidden overflow-y-auto">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-2xl w-full mx-4 my-8 relative" id="receipt-content">
+            <div class="no-print absolute top-4 right-4 flex space-x-2">
+                <button onclick="printReceipt()" class="text-gray-600 hover:text-secondary p-2">
+                    <i class="fas fa-print text-xl"></i>
+                </button>
+                <button onclick="closeReceiptModal()" class="text-gray-600 hover:text-red-500 p-2">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="text-center border-b pb-6 mb-6">
+                <i class="fas fa-hotel text-secondary text-4xl mb-2"></i>
+                <h2 class="text-3xl font-bold text-gray-900">LuxeStay Hotel</h2>
+                <p class="text-gray-500">123 Luxury Blvd, Paradise City, PC 12345</p>
+                <p class="text-gray-500">Phone: +1 (555) 123-4567 | Email: info@luxestay.com</p>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-4 border-b pb-2">Booking Confirmation</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-600">Guest Name:</p>
+                        <p class="font-bold text-lg" id="receipt-name">John Doe</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Booking ID:</p>
+                        <p class="font-bold text-lg" id="receipt-id">#BK-12345</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Check In:</p>
+                        <p class="font-bold" id="receipt-checkin">2024-01-01</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Check Out:</p>
+                        <p class="font-bold" id="receipt-checkout">2024-01-05</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Room Type:</p>
+                        <p class="font-bold" id="receipt-room">Deluxe Ocean View</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Guests:</p>
+                        <p class="font-bold" id="receipt-guests">2 Adults</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="pb-2">Description</th>
+                            <th class="pb-2 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600">
+                        <tr>
+                            <td class="py-2">Room Charges (<span id="receipt-nights">4</span> nights)</td>
+                            <td class="py-2 text-right" id="receipt-room-cost">₹48,000</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2">Taxes & Fees (18%)</td>
+                            <td class="py-2 text-right" id="receipt-tax">₹8,640</td>
+                        </tr>
+                        <tr class="border-t font-bold text-gray-900 text-lg">
+                            <td class="py-4">Total Paid</td>
+                            <td class="py-4 text-right" id="receipt-total">₹56,640</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center text-xs text-gray-400 mt-8">
+                <p>Thank you for choosing LuxeStay. We hope you enjoy your stay!</p>
+                <p>This is a computer-generated receipt and does not require a signature.</p>
+            </div>
+            
+            <div class="no-print mt-6 text-center">
+                <button onclick="printReceipt()" class="bg-secondary text-white px-8 py-3 rounded-lg font-bold hover:bg-yellow-600 transition shadow-lg">
+                    Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
